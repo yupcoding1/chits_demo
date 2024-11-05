@@ -1,0 +1,34 @@
+-- 1. Committees Table
+CREATE TABLE committees (
+    committee_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE
+);
+
+-- 2. Countries Table
+CREATE TABLE countries (
+    country_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE
+);
+
+-- 3. Users Table
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    country_id INT REFERENCES countries(country_id) ON DELETE CASCADE,
+    committee_id INT REFERENCES committees(committee_id) ON DELETE CASCADE,
+    role VARCHAR(10) CHECK (role IN ('Delegate', 'EB')) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    oauth_id VARCHAR(255) UNIQUE,
+    has_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 4. Chits Table
+CREATE TABLE chits (
+    chit_id SERIAL PRIMARY KEY,
+    sender_id INT REFERENCES users(user_id) ON DELETE SET NULL,
+    recipient_id INT REFERENCES users(user_id) ON DELETE SET NULL,
+    message TEXT NOT NULL,
+    delivered_via VARCHAR(10) CHECK (delivered_via IN ('Direct', 'EB')) NOT NULL,
+    status VARCHAR(10) CHECK (status IN ('Pending', 'Approved', 'Denied', 'Delivered')) NOT NULL DEFAULT 'Pending',
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
